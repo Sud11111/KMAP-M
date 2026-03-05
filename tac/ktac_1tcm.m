@@ -1,10 +1,12 @@
 function [ct, st] = ktac_1tcm(k, cp, scant, opt, cwb)
 %--------------------------------------------------------------------------
-% Generate time-activity curves (TACs) using the two-tissue compartmental model.
+% Generate time-activity curves (TACs) using the one-tissue compartmental model.
 %
 % Inputs:
 % - k: Kinetic parameters. This can be a vector or matrix containing the
-%      parameters [vb, K1, k2, k3, k4, time_delay]'.
+%      parameters [vb, K1, k2, time_delay]'.
+%      ([vb, K1, k2, k3, k4, time_delay]')
+%      also accepted; `k3` and `k4` are ignored.
 % - cp: Plasma concentration data.
 % - scant: Scan time data, expected as a two-column matrix where each row 
 %          represents [start_time, end_time] in seconds.
@@ -25,13 +27,11 @@ function [ct, st] = ktac_1tcm(k, cp, scant, opt, cwb)
 %
 %--------------------------------------------------------------------------
 
-% Adapt the input vector to [vb K1 k2 k3 k4, time_delay]'
-prm = zeros(6, size(k, 2));
+% Adapt the input vector to [vb K1 k2 time_delay]'
 if size(k, 1) == 4     % One-tissue compartment model
-    prm(1:3, :) = k(1:3,:);
-    prm(6,:) = k(4,:);
+    prm = k
 elseif size(k, 1) == 6 % Two-tissue compartment model
-    prm(1:size(k, 1), :) = k;
+    prm = k([1 2 3 6], :);
 else
     error('Unmatched size of kinetic parameter input.');
 end
